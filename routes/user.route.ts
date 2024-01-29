@@ -5,7 +5,7 @@ import {
   registerUser,
   activateUser,
   loginUser,
-} from "../controllers/user2.controller";
+} from "../controllers/user.controller";
 const userRouter = express.Router();
 
 userRouter.post("/register", registerUser);
