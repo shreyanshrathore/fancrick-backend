@@ -9,7 +9,7 @@ export const createPlayer = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const data = req.body as IPlayer;
-      if (!data.username || !data.role || !data.teamName || !data.profile) {
+      if (!data.username || !data.role || !data.teamName) {
         return next(new ErrorHandler("please input all fields", 400));
       }
       const isNameExist = await playerModel.findOne({ name: data.username });
@@ -22,14 +22,14 @@ export const createPlayer = CatchAsyncError(
       if (!team) {
         return next(new ErrorHandler("Team is not registered", 400));
       }
-      const myCloud = await cloudinary.v2.uploader.upload(data.profile, {
-        folder: "player-profile",
-      });
+      // const myCloud = await cloudinary.v2.uploader.upload(data.profile, {
+      //   folder: "player-profile",
+      // });
 
-      data.profile = {
-        public_id: myCloud.public_id,
-        url: myCloud.secure_url,
-      };
+      // data.profile = {
+      //   public_id: myCloud.public_id,
+      //   url: myCloud.secure_url,
+      // };
       const player = await playerModel.create(data);
       if (!player) {
         return next(new ErrorHandler("player is not saved", 400));

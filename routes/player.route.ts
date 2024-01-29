@@ -7,8 +7,8 @@ import { isAuthenticated } from "../middleware/auth";
 // import { activateUser } from "../controllers/user.controller";
 const playerRouter = express.Router();
 
-playerRouter.post("/create-player", isAuthenticated, createPlayer);
+playerRouter.post("/create-player", createPlayer);
 
-playerRouter.get("/get-players/:team", isAuthenticated, fetchPlayerByTeam);
+playerRouter.get("/get-players/:team", fetchPlayerByTeam);
 
 export default playerRouter;
