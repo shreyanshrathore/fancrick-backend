@@ -2,13 +2,15 @@ require("dotenv").config();
 import mongoose, { Document, Model, Schema } from "mongoose";
 import { IUser } from "./user.model";
 import { IPlayer } from "./player.model";
-import { ITeam } from "./team.model";
 
 export interface IContest extends Document {
   name: string;
+  status: STATUS;
   teamLeftData: ITeams;
   teamRightData: ITeams;
 }
+
+type STATUS = "Upcoming" | "Ongoing" | "Completed";
 
 export interface ITeams {
   name: string;
@@ -55,6 +57,10 @@ const contestSchema: Schema<IContest> = new mongoose.Schema({
   name: {
     type: String,
     required: [true, "Please enter contest name"],
+  },
+  status: {
+    type: String,
+    default: "Upcoming",
   },
   teamLeftData: {
     type: teamSchema,

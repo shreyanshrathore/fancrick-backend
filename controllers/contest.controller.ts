@@ -1,8 +1,7 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction, response } from "express";
 import { CatchAsyncError } from "../middleware/catchAsyncErrors";
 import teamModel, { ITeam } from "../models/team.model";
 import ErrorHandler from "../utils/ErrorHandler";
-import playerModel, { IPlayer } from "../models/player.model";
 import contestModel, {
   IContest,
   IContestPlayer,
@@ -66,7 +65,7 @@ export const createContest = CatchAsyncError(
         teamRightData: teamRightData,
       });
 
-      res.status(200).json({
+      res.status(201).json({
         status: "success",
         newContest,
       });
@@ -107,6 +106,27 @@ export const fetchContestById = CatchAsyncError(
     try {
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
+
+export const updateStatusContest = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { status, id } = req.body;
+      const contest = await contestModel.findByIdAndUpdate(id, status);
+      if (!contest) {
+        return next(new ErrorHandler("Contest not found", 400));
+      }
+
+      // contest.status = status;
+      // await contest.save();
+      res.status(200).json({
+        status: "success",
+        contest,
+      });
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 500));
     }
   }
 );
