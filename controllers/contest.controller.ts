@@ -121,7 +121,7 @@ export const updateStatusContest = CatchAsyncError(
 
       // contest.status = status;
       // await contest.save();
-      res.status(200).json({
+      res.status(201).json({
         status: "success",
         contest,
       });
