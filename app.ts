@@ -24,9 +24,10 @@ app.use(cookieParser());
 
 // cors
 app.use(
-  cors({
-    origin: process.env.ORIGIN,
-  })
+  cors()
+  // {
+  // origin: process.env.ORIGIN,
+  // }
 );
 
 // routes
