@@ -32,7 +32,9 @@ app.use(
 // routes
 
 app.use("/api/v1", userRouter, teamRouter, playerRouter, contestRouter);
-
+app.get("/", (req, res) => {
+  res.json({ message: "hello lwde!!!...." });
+});
 app.get("/test", (req: Request, res: Response, next: NextFunction) => {
   res.status(200).json({
     success: true,
