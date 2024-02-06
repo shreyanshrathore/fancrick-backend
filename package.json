@@ -6,7 +6,7 @@
   "main": "server.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "ts-node-dev --respawn --transpile-only server.js",
+    "dev": "ts-node-dev --respawn --transpile-only server.ts",
     "start": "nodemon server.ts",
     "build": "rimraf dist && tsc",
     "ts.check": "tsc --project tsconfig.json",
