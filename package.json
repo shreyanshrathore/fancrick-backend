@@ -1,13 +1,12 @@
 {
   "name": "server",
-  "type": "module",
   "version": "1.0.0",
   "description": "",
   "main": "server.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "ts-node-dev --respawn --transpile-only server.ts",
-    "start": "nodemon server.js",
+    "start": "nodemon ./dist/server.js",
     "build": "rimraf dist && tsc",
     "ts.check": "tsc --project tsconfig.json",
     "add-build": "git add dist"
@@ -35,6 +34,7 @@
     "mongoose": "^8.0.3",
     "node-cron": "^3.0.3",
     "nodemailer": "^6.9.7",
+    "nodemon": "^3.0.3",
     "ts-node-dev": "^2.0.0"
   },
   "devDependencies": {
