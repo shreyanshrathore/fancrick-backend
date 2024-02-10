@@ -80,6 +80,7 @@ export const fetchAllContests = CatchAsyncError(
     try {
       const contests = await contestModel.find().select({
         name: 1,
+        status: 1,
         "teamLeftData.name": 1,
         "teamLeftData.logo": 1,
         "teamLeftData._id": 1,
