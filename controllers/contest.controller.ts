@@ -104,6 +104,20 @@ export const fetchAllContests = CatchAsyncError(
 export const fetchContestById = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
+      const id = req.params.id;
+      if (!id) {
+        return next(new ErrorHandler("Id is no present", 400));
+      }
+
+      const contest = await contestModel.findById(id);
+
+      if (!contest) {
+        return next(new ErrorHandler("Contest not found", 400));
+      }
+
+      res
+        .status(201)
+        .json({ message: "Contest fetched successfully", contest });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }
