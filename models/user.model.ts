@@ -2,6 +2,7 @@ require("dotenv").config();
 import mongoose, { Document, Model, Schema } from "mongoose";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { IContestPlayer } from "./contest.model";
 
 const emailRegexPattern: RegExp = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -11,49 +12,50 @@ export interface IUser extends Document {
   password: string;
   phone: string;
   role: string;
-  contests: Array<{ contestId: string }>;
+  contests: Array<{
+    contestId: Schema.Types.ObjectId;
+    fantasyTeam: IContestPlayer[];
+  }>;
   comparePassword: (password: string) => Promise<boolean>;
 }
 
-const userSchema: Schema<IUser> = new mongoose.Schema(
-  {
-    name: {
-      type: String,
-      required: [true, "Please enter your name"],
-    },
-    phone: {
-      type: String,
-      required: [true, "Please enter your phone number"],
-    },
-    email: {
-      type: String,
-      required: [true, "Please enter your email"],
-      validate: {
-        validator: function (value: string) {
-          return emailRegexPattern.test(value);
-        },
-        message: "Please enter a valid message",
-      },
-      unique: true,
-    },
-    password: {
-      type: String,
-      // required: [true, "Please enter your password"],
-      minlength: [6, "Password must be atleast 6 character"],
-      select: false,
-    },
-    role: {
-      type: String,
-      default: "user",
-    },
-    contests: [
-      {
-        contestId: String,
-      },
-    ],
+const userSchema: Schema<IUser> = new mongoose.Schema({
+  name: {
+    type: String,
+    required: [true, "Please enter your name"],
   },
-  { timestamps: true }
-);
+  phone: {
+    type: String,
+    required: [true, "Please enter your phone number"],
+  },
+  email: {
+    type: String,
+    required: [true, "Please enter your email"],
+    validate: {
+      validator: function (value: string) {
+        return emailRegexPattern.test(value);
+      },
+      message: "Please enter a valid message",
+    },
+    unique: true,
+  },
+  password: {
+    type: String,
+    // required: [true, "Please enter your password"],
+    minlength: [6, "Password must be atleast 6 character"],
+    select: false,
+  },
+  role: {
+    type: String,
+    default: "user",
+  },
+  contests: [
+    {
+      contestId: { type: Schema.Types.ObjectId, ref: "Contest" }, // Assuming 'Contest' is the related model name
+      fantasyTeam: [{ type: Schema.Types.ObjectId, ref: "ContestPlayer" }], // Assuming 'ContestPlayer' is the related model name
+    },
+  ],
+});
 
 // Hash Password before checking it
 userSchema.pre<IUser>("save", async function (next) {

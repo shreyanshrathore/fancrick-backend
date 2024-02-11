@@ -6,8 +6,8 @@ import { IPlayer } from "./player.model";
 export interface IContest extends Document {
   name: string;
   status: STATUS;
-  teamLeftData: ITeams;
-  teamRightData: ITeams;
+  teamLeft: Schema.Types.ObjectId;
+  teamRight: Schema.Types.ObjectId;
 }
 
 type STATUS = "Upcoming" | "Ongoing" | "Completed";
@@ -62,11 +62,13 @@ const contestSchema: Schema<IContest> = new mongoose.Schema({
     type: String,
     default: "Upcoming",
   },
-  teamLeftData: {
-    type: teamSchema,
+  teamLeft: {
+    type: Schema.Types.ObjectId,
+    ref: "Team",
   },
-  teamRightData: {
-    type: teamSchema,
+  teamRight: {
+    type: Schema.Types.ObjectId,
+    ref: "Team",
   },
 });
 

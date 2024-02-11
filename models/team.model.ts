@@ -11,20 +11,17 @@ export interface ITeam extends Document {
   players: Array<IPlayer>;
 }
 
-const teamSchema: Schema<ITeam> = new mongoose.Schema(
-  {
-    name: {
-      type: String,
-      required: [true, "Please enter your name"],
-    },
-    logo: {
-      public_id: String,
-      url: String,
-    },
-    players: [{ type: Schema.Types.ObjectId, ref: "Player" }],
+const teamSchema: Schema<ITeam> = new mongoose.Schema({
+  name: {
+    type: String,
+    required: [true, "Please enter your name"],
   },
-  { timestamps: true }
-);
+  logo: {
+    public_id: String,
+    url: String,
+  },
+  players: [{ type: Schema.Types.ObjectId, ref: "Player" }],
+});
 
 const teamModel: Model<ITeam> = mongoose.model("Team", teamSchema);
 

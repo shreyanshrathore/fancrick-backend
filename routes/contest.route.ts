@@ -1,19 +1,23 @@
 import express from "express";
 import { isAuthenticated } from "../middleware/auth";
 import {
-  createContest,
+  createcontest,
   fetchAllContests,
   fetchContestById,
   updateStatusContest,
 } from "../controllers/contest.controller";
 const contestRouter = express.Router();
 
-contestRouter.post("/create-contest", createContest);
+contestRouter.post("/create-contest", createcontest);
 
 contestRouter.get("/get-all-contests", fetchAllContests);
 
 contestRouter.get("/get-contest/:id", fetchContestById);
 
-contestRouter.put("/update-contest-state", updateStatusContest);
+contestRouter.put(
+  "/update-contest-state",
+  isAuthenticated,
+  updateStatusContest
+);
 
 export default contestRouter;

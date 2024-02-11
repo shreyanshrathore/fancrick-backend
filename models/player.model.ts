@@ -5,10 +5,7 @@ export interface IPlayer extends Document {
   username: string;
   teamName: string;
   role: string;
-  // profile: {
-  //   public_id: string;
-  //   url: string;
-  // };
+  contests: [{ contestId: Schema.Types.ObjectId; score: number }];
 }
 
 export const playerSchema: Schema<IPlayer> = new mongoose.Schema({
@@ -18,15 +15,24 @@ export const playerSchema: Schema<IPlayer> = new mongoose.Schema({
   },
   teamName: {
     type: String,
+    required: [true, "Please enter your team name"],
   },
   role: {
     type: String,
     required: [true, "Please enter your role"],
   },
-  // profile: {
-  //   public_id: String,
-  //   url: String,
-  // },
+  contests: [
+    {
+      contestId: {
+        type: Schema.Types.ObjectId,
+        ref: "Contest",
+      },
+      score: {
+        type: Number,
+        default: 0,
+      },
+    },
+  ],
 });
 
 const playerModel: Model<IPlayer> = mongoose.model("Player", playerSchema);

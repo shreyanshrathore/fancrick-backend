@@ -2,14 +2,12 @@ import { Request, Response, NextFunction, response } from "express";
 import { CatchAsyncError } from "../middleware/catchAsyncErrors";
 import teamModel, { ITeam } from "../models/team.model";
 import ErrorHandler from "../utils/ErrorHandler";
-import contestModel, {
-  IContest,
-  IContestPlayer,
-  ITeams,
-} from "../models/contest.model";
+import contestModel from "../models/contest.model";
+import playerModel from "../models/player.model";
+import { Schema } from "mongoose";
 const cloudinary = require("cloudinary");
 
-export const createContest = CatchAsyncError(
+export const createcontest = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { name, teamLeftName, teamRightName } = req.body;
@@ -18,57 +16,49 @@ export const createContest = CatchAsyncError(
         return next(new ErrorHandler("Give all feild values", 400));
       }
 
-      let teamLeft = await teamModel
-        .findOne({ name: teamLeftName })
-        .populate("players");
-
-      let teamRight = await teamModel
-        .findOne({ name: teamRightName })
-        .populate("players");
+      const teamLeft = await teamModel.findOne({ name: teamLeftName });
 
       if (!teamLeft) {
-        return next(new ErrorHandler(`${teamLeftName} does not exist`, 400));
+        return next(new ErrorHandler("Left Team not found", 400));
       }
+
+      const teamRight = await teamModel.findOne({ name: teamRightName });
+
       if (!teamRight) {
-        return next(new ErrorHandler(`${teamLeftName} does not exist`, 400));
+        return next(new ErrorHandler("Right Team not found", 400));
       }
-      let teamPlayersLeft: Array<IContestPlayer> = [];
-      for (let i = 0; i < teamLeft.players.length; i++) {
-        teamPlayersLeft.push({
-          playerName: teamLeft.players[i].username,
-          score: 0,
-        });
-      }
-      let teamPlayersRight: Array<IContestPlayer> = [];
 
-      for (let i = 0; i < teamRight.players.length; i++) {
-        teamPlayersRight.push({
-          playerName: teamRight.players[i].username,
-          score: 0,
-        });
-      }
-      const teamLeftData: ITeams = {
-        name: teamLeft.name,
-        logo: teamLeft.logo,
-        playerData: teamPlayersLeft,
-      };
-      const teamRightData: ITeams = {
-        name: teamRight.name,
-        logo: teamRight.logo,
-        playerData: teamPlayersRight,
-      };
-      const newContest: IContest = await contestModel.create({
+      const leftId = teamLeft._id;
+      const rightId = teamRight._id;
+
+      const contest = await contestModel.create({
         name,
-        teamLeft,
-        teamRight,
-        teamLeftData: teamLeftData,
-        teamRightData: teamRightData,
+        teamLeft: leftId,
+        teamRight: rightId,
       });
 
-      res.status(201).json({
-        status: "success",
-        newContest,
-      });
+      // const Id = contest._id;
+
+      // const playersToUpdate = await playerModel.find({
+      //   _id: { $in: teamLeft.players },
+      // });
+      // await Promise.all(
+      //   playersToUpdate.map(async (player: any) => {
+      //     player.contests.push({ contestId: Id, score: 0 });
+      //     await player.save();
+      //   })
+      // );
+
+      // const playersToUpdateRight = await playerModel.find({
+      //   _id: { $in: teamRight.players },
+      // });
+      // await Promise.all(
+      //   playersToUpdateRight.map(async (player: any) => {
+      //     player.contests.push({ contestId: Id, score: 0 });
+      //     await player.save();
+      //   })
+      // );
+      res.status(200).json(contest);
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 500));
     }
@@ -78,20 +68,19 @@ export const createContest = CatchAsyncError(
 export const fetchAllContests = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const contests = await contestModel.find().select({
-        name: 1,
-        status: 1,
-        "teamLeftData.name": 1,
-        "teamLeftData.logo": 1,
-        "teamLeftData._id": 1,
-        "teamRightData.name": 1,
-        "teamRightData.logo": 1,
-        "teamRightData._id": 1,
-      });
+      const contests = await contestModel
+        .find()
+        .populate({
+          path: "teamLeft",
+          select: "logo name",
+        })
+        .populate({
+          path: "teamRight",
+          select: "logo name",
+        });
       if (!contests) {
         return next(new ErrorHandler("Contests not found", 400));
       }
-
       res.status(201).json({
         status: "success",
         contests,
@@ -112,13 +101,27 @@ export const fetchContestById = CatchAsyncError(
 
       const contest = await contestModel.findById(id);
 
+      const teamLeft = await teamModel
+        .findOne({ name: contest.teamLeftName })
+        .select("logo name");
+
+      const teamRight = await teamModel
+        .findOne({ name: contest.teamRightName })
+        .select("logo name");
+
       if (!contest) {
         return next(new ErrorHandler("Contest not found", 400));
       }
 
+      const contestData = {
+        name: contest.name,
+        _id: contest._id,
+        teamLeft: teamLeft,
+        teamRight: teamRight,
+      };
       res
         .status(201)
-        .json({ message: "Contest fetched successfully", contest });
+        .json({ message: "Contest fetched successfully", contestData });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }
@@ -129,7 +132,13 @@ export const updateStatusContest = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { status, id } = req.body;
-      const contest = await contestModel.findByIdAndUpdate(id, status);
+      const contest = await contestModel.findByIdAndUpdate(
+        id,
+        { status: status },
+        {
+          new: true,
+        }
+      );
       if (!contest) {
         return next(new ErrorHandler("Contest not found", 400));
       }
@@ -143,5 +152,11 @@ export const updateStatusContest = CatchAsyncError(
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 500));
     }
+  }
+);
+
+export const joinContest = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { contestId, fantasyTeam } = req.body;
   }
 );
