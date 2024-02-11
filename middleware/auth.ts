@@ -22,9 +22,7 @@ export const isAuthenticated = CatchAsyncError(
     if (!decoded) {
       return next(new ErrorHandler("access token is not valid", 400));
     }
-    console.log(decoded);
     const user = await redis.get(decoded.user._id);
-    console.log(user);
     if (!user) {
       return next(
         new ErrorHandler("Plaese login to access this resource", 400)

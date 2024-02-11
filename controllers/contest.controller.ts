@@ -5,6 +5,7 @@ import ErrorHandler from "../utils/ErrorHandler";
 import contestModel from "../models/contest.model";
 import playerModel from "../models/player.model";
 import { Schema } from "mongoose";
+import userModel from "../models/user.model";
 const cloudinary = require("cloudinary");
 
 export const createcontest = CatchAsyncError(
@@ -37,27 +38,27 @@ export const createcontest = CatchAsyncError(
         teamRight: rightId,
       });
 
-      // const Id = contest._id;
+      const Id = contest._id;
 
-      // const playersToUpdate = await playerModel.find({
-      //   _id: { $in: teamLeft.players },
-      // });
-      // await Promise.all(
-      //   playersToUpdate.map(async (player: any) => {
-      //     player.contests.push({ contestId: Id, score: 0 });
-      //     await player.save();
-      //   })
-      // );
+      const playersToUpdate = await playerModel.find({
+        _id: { $in: teamLeft.players },
+      });
+      await Promise.all(
+        playersToUpdate.map(async (player: any) => {
+          player.contests.push({ contestId: Id, score: 0 });
+          await player.save();
+        })
+      );
 
-      // const playersToUpdateRight = await playerModel.find({
-      //   _id: { $in: teamRight.players },
-      // });
-      // await Promise.all(
-      //   playersToUpdateRight.map(async (player: any) => {
-      //     player.contests.push({ contestId: Id, score: 0 });
-      //     await player.save();
-      //   })
-      // );
+      const playersToUpdateRight = await playerModel.find({
+        _id: { $in: teamRight.players },
+      });
+      await Promise.all(
+        playersToUpdateRight.map(async (player: any) => {
+          player.contests.push({ contestId: Id, score: 0 });
+          await player.save();
+        })
+      );
       res.status(200).json(contest);
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 500));
@@ -159,5 +160,14 @@ export const updateStatusContest = CatchAsyncError(
 export const joinContest = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     const { contestId, fantasyTeam } = req.body;
+
+    const user = req.user;
+
+    const docUser = await userModel.findById(user._id);
+
+    const team = { contestId, fantasyTeam };
+    docUser.contests.push(team);
+    const newUser = await docUser.save();
+    res.status(200).json(newUser);
   }
 );

@@ -4,6 +4,7 @@ import {
   createcontest,
   fetchAllContests,
   fetchContestById,
+  joinContest,
   updateStatusContest,
 } from "../controllers/contest.controller";
 const contestRouter = express.Router();
@@ -13,6 +14,8 @@ contestRouter.post("/create-contest", createcontest);
 contestRouter.get("/get-all-contests", fetchAllContests);
 
 contestRouter.get("/get-contest/:id", fetchContestById);
+
+contestRouter.post("/join-contest", isAuthenticated, joinContest);
 
 contestRouter.put(
   "/update-contest-state",
