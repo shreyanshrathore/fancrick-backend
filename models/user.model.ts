@@ -14,7 +14,7 @@ export interface IUser extends Document {
   role: string;
   contests: Array<{
     contestId: Schema.Types.ObjectId;
-    fantasyTeam: IContestPlayer[];
+    fantasyTeamId: Schema.Types.ObjectId;
   }>;
   comparePassword: (password: string) => Promise<boolean>;
 }
@@ -52,7 +52,7 @@ const userSchema: Schema<IUser> = new mongoose.Schema({
   contests: [
     {
       contestId: { type: Schema.Types.ObjectId, ref: "Contest" }, // Assuming 'Contest' is the related model name
-      fantasyTeam: [{ type: Schema.Types.ObjectId, ref: "ContestPlayer" }], // Assuming 'ContestPlayer' is the related model name
+      fantasyTeamId: { type: Schema.Types.ObjectId, ref: "FantasyTeam" }, // Assuming 'ContestPlayer' is the related model name
     },
   ],
 });

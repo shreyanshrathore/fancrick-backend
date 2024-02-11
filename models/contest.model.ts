@@ -8,6 +8,10 @@ export interface IContest extends Document {
   status: STATUS;
   teamLeft: Schema.Types.ObjectId;
   teamRight: Schema.Types.ObjectId;
+  participants: Array<{
+    userId: Schema.Types.ObjectId;
+    fantasyTeamId: Schema.Types.ObjectId;
+  }>;
 }
 
 type STATUS = "Upcoming" | "Ongoing" | "Completed";
@@ -70,6 +74,20 @@ const contestSchema: Schema<IContest> = new mongoose.Schema({
     type: Schema.Types.ObjectId,
     ref: "Team",
   },
+  participants: [
+    {
+      userId: {
+        type: Schema.Types.ObjectId,
+        ref: "User", // Assuming "User" is the name of the model for users
+        required: true,
+      },
+      fantasyTeamId: {
+        type: Schema.Types.ObjectId,
+        ref: "FantasyTeam", // Assuming "FantasyTeam" is the name of the model for fantasy teams
+        required: true,
+      },
+    },
+  ],
 });
 
 const contestModel: Model<IContest> = mongoose.model("Contest", contestSchema);

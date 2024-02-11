@@ -4,9 +4,8 @@ import teamModel, { ITeam } from "../models/team.model";
 import ErrorHandler from "../utils/ErrorHandler";
 import contestModel from "../models/contest.model";
 import playerModel from "../models/player.model";
-import { Schema } from "mongoose";
 import userModel from "../models/user.model";
-const cloudinary = require("cloudinary");
+import fantasyModel from "../models/fantasy.team.model";
 
 export const createcontest = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -161,11 +160,28 @@ export const joinContest = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     const { contestId, fantasyTeam } = req.body;
 
+    const contest = await contestModel.findById(contestId);
+
+    if (!contest) {
+      return next(new ErrorHandler("Contest not found", 400));
+    }
+
     const user = req.user;
 
     const docUser = await userModel.findById(user._id);
+    const docFantasyTeam = await fantasyModel.create({ team: fantasyTeam });
 
-    const team = { contestId, fantasyTeam };
+    if (!docFantasyTeam) {
+      return next(new ErrorHandler("fantasy team cant be generated", 400));
+    }
+
+    const fantasyTeamId = docFantasyTeam._id;
+
+    const participant = { userId: user._id, fantasyTeamId: fantasyTeamId };
+    contest.participants.push(participant);
+
+    await contest.save();
+    const team = { contestId, fantasyTeamId };
     docUser.contests.push(team);
     const newUser = await docUser.save();
     res.status(200).json(newUser);
