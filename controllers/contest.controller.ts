@@ -99,29 +99,30 @@ export const fetchContestById = CatchAsyncError(
         return next(new ErrorHandler("Id is no present", 400));
       }
 
-      const contest = await contestModel.findById(id);
-
-      const teamLeft = await teamModel
-        .findOne({ name: contest.teamLeftName })
-        .select("logo name");
-
-      const teamRight = await teamModel
-        .findOne({ name: contest.teamRightName })
-        .select("logo name");
+      const contest = await contestModel
+        .findById(id)
+        .populate({
+          path: "teamLeft",
+          populate: {
+            path: "players",
+            select: "_id username role",
+          },
+        })
+        .populate({
+          path: "teamRight",
+          populate: {
+            path: "players",
+            select: "_id username role",
+          },
+        });
 
       if (!contest) {
         return next(new ErrorHandler("Contest not found", 400));
       }
 
-      const contestData = {
-        name: contest.name,
-        _id: contest._id,
-        teamLeft: teamLeft,
-        teamRight: teamRight,
-      };
       res
         .status(201)
-        .json({ message: "Contest fetched successfully", contestData });
+        .json({ message: "Contest fetched successfully", contest });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }
