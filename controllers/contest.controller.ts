@@ -178,15 +178,15 @@ export const joinContest = CatchAsyncError(
     const fantasyTeamId = docFantasyTeam._id;
 
     const participant = { userId: user._id, fantasyTeamId: fantasyTeamId };
-    const isUserExist = contest.participants.map(
-      (parti) => parti.userId == req.user._id
-    );
+    // const isUserExist = contest.participants.map(
+    //   (parti) => parti.userId == req.user._id
+    // );
 
-    if (isUserExist) {
-      return next(
-        new ErrorHandler("user already registered to this contest", 400)
-      );
-    }
+    // if (isUserExist) {
+    //   return next(
+    //     new ErrorHandler("user already registered to this contest", 400)
+    //   );
+    // }
     contest.participants.push(participant);
 
     await contest.save();
