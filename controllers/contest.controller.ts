@@ -58,7 +58,7 @@ export const createcontest = CatchAsyncError(
           await player.save();
         })
       );
-      res.status(200).json(contest);
+      res.status(201).json(contest);
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 500));
     }
@@ -193,6 +193,6 @@ export const joinContest = CatchAsyncError(
     const team = { contestId, fantasyTeamId };
     docUser.contests.push(team);
     const newUser = await docUser.save();
-    res.status(200).json(newUser);
+    res.status(201).json(newUser);
   }
 );
