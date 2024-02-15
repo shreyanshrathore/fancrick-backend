@@ -4,6 +4,7 @@ import {
   createcontest,
   fetchAllContests,
   fetchContestById,
+  getLeaderBoard,
   joinContest,
   updateStatusContest,
 } from "../controllers/contest.controller";
@@ -16,6 +17,8 @@ contestRouter.get("/get-all-contests", fetchAllContests);
 contestRouter.get("/get-contest/:id", fetchContestById);
 
 contestRouter.post("/join-contest", isAuthenticated, joinContest);
+
+contestRouter.get("/leaderboard/:id", isAuthenticated, getLeaderBoard);
 
 contestRouter.put(
   "/update-contest-state",

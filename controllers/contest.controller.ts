@@ -196,3 +196,85 @@ export const joinContest = CatchAsyncError(
     res.status(201).json(newUser);
   }
 );
+
+export const getLeaderBoard = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const id = req.params.id;
+
+      const contest = await contestModel.findById(id);
+
+      // console.log(contest);
+      if (!contest) {
+        return next(new ErrorHandler("Contest not found", 400));
+      }
+
+      const leaderboard = [];
+      for (let i = 0; i < contest.participants.length; i++) {
+        const participant = contest.participants[i];
+
+        if (!participant) {
+          return next(new ErrorHandler("Participant does not exist", 400));
+        }
+        // console.log(participant)
+
+        const user = await userModel.findById(participant.userId);
+
+        if (!user) {
+          return next(new ErrorHandler("User not found", 400));
+        }
+
+        const fantasyTeam = await fantasyModel
+          .findById(participant.fantasyTeamId)
+          .populate({
+            path: "team",
+            // populate: {
+            //   path: "contests.contestId",
+            //   match: { _id: contest._id },
+            // },
+          });
+        if (!fantasyTeam) {
+          return next(new ErrorHandler("Fantasy team not found", 400));
+        }
+
+        let totalScore = 0;
+        console.log(fantasyTeam.team.length);
+        // console.log(fantasyTeam.team[2]);
+        for (let j = 0; j < fantasyTeam.team.length; j++) {
+          var player = fantasyTeam.team[j];
+
+          const index = player.contests.findIndex(
+            (contest: any) => contest.contestId === id
+          );
+
+          console.log(index);
+          // console.log(player);
+
+          totalScore += player.contests[0].score;
+        }
+
+        // for (let j = 0; j < fantasyTeam.team.length; j++) {
+        //   var player = fantasyTeam.team[j];
+
+        //   if (!player.contests[j]) {
+        //     return next(
+        //       new ErrorHandler("Player's contest score not found", 400)
+        //     );
+        //   }
+
+        //   // totalScore += player.contests[0].score;
+        // }
+
+        leaderboard.push({ user: user.name, totalScore });
+      }
+
+      leaderboard.sort((a, b) => b.totalScore - a.totalScore);
+
+      res
+        .status(200)
+        .json({ message: "Leaderboard fetched successfully", leaderboard });
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
